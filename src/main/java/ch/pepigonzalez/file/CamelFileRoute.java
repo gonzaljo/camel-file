@@ -1,32 +1,36 @@
 package ch.pepigonzalez.file;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
-import org.w3c.dom.ls.LSOutput;
+import org.apache.camel.model.language.MvelExpression;
 
-import java.util.List;
+import javax.inject.Inject;
 
 public class CamelFileRoute extends RouteBuilder {
-
 
     @Override
     public void configure() throws Exception {
         BindyCsvDataFormat format = new BindyCsvDataFormat(User.class);
         format.setLocale("default");
 
-        from("file:/D:/dev/IntelliJProjects/camel-file/data?maxMessagesPerPoll=1&delay=1000")
+        getContext().setTracing(true);
+        getContext().getTracer().setTraceBeforeAndAfterRoute(true);
+        getContext().getTracer().setTracePattern("file:/mnt/d/dev/IntelliJProjects/camel-file/data");
+
+        from("file:/mnt/d/dev/IntelliJProjects/camel-file/data?maxMessagesPerPoll=1&delay=1000")
                 .split(body().tokenize("\n")).streaming()
                 .unmarshal(format)
-                .process(new Processor() {
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        exchange.setProperty("group", exchange.getMessage().getBody(User.class).getId());
-                    }
-                })
-                .aggregate(header("group"), new UserAggragationStrategy())
-                    .completionTimeout(5000l)
+                .aggregate(new MvelExpression("request.body.id"), new UserAggragationStrategy())
+                    .completionTimeout(1l)
+                    .process(new Processor() {
+                        @Override
+                        public void process(Exchange exchange) throws Exception {
+                            System.out.println("Body size: " + exchange.getIn().getBody().toString());
+                        }
+                    })
                     .to("mock:myRoute")
                 .end();
     }

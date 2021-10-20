@@ -13,12 +13,12 @@ public class UserAggragationStrategy implements AggregationStrategy {
         User user = newExchange.getIn().getBody(User.class);
 
         if (oldExchange == null) {
-            ArrayList<User> users = new ArrayList<>();
-            users.add(user);
+            ArrayList<String> users = new ArrayList<>();
+            users.add(user.toString());
             newExchange.getIn().setBody(users);
             return newExchange;
         } else {
-            oldExchange.getIn().getBody(List.class).add(user);
+            oldExchange.getIn().getBody(List.class).add(user.toString());
             return oldExchange;
         }
     }

@@ -16,9 +16,9 @@ public class TestFileCreator {
 
         try (FileOutputStream fos = new FileOutputStream(file)) {
 
-            for(int x=1; x < 100000; x++) {
-                int count =(int)(Math.random()*6);
-                for(int i=1; i<count; i++) {
+            for(int x=1; x < 10000; x++) {
+                int count =(int)(Math.random()*6)+1;
+                for(int i=1; i<=count; i++) {
                     StringBuffer buffer = new StringBuffer();
                     buffer.append(x).append(",")
                             .append(i).append(",")
