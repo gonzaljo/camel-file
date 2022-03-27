@@ -27,7 +27,6 @@ public class CamelFileRoute extends RouteBuilder {
         BindyCsvDataFormat format = new BindyCsvDataFormat(User.class);
         format.setLocale("default");
 
-
         from("file:/home/pepi/IdeaProjects/camel-file/data?maxMessagesPerPoll=1&delay=1000")
                 .routeId("inRoute")
                 .setHeader("fileId", constant(UUID.randomUUID().toString()) )
@@ -36,7 +35,6 @@ public class CamelFileRoute extends RouteBuilder {
                 .setHeader("uid", new MvelExpression("request.body.id"))
                 .aggregate(new MvelExpression("request.body.id"), new UserAggragationStrategy())
                     .completionTimeout(1000)
-                    .id("beforeSplitter")
                     .to(config.toSplitter())
                 .end();
 
